@@ -2,6 +2,7 @@ package alex.carcar.geoquiz
 
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -10,7 +11,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var trueButton: Button
     private lateinit var falseButton: Button
-    private lateinit var nextButton: Button
+    private lateinit var nextButton: ImageButton
+    private lateinit var prevButton: ImageButton
     private lateinit var questionTextView: TextView
 
     private val questionBank = listOf(
@@ -19,7 +21,8 @@ class MainActivity : AppCompatActivity() {
         Question(R.string.question_mideast, false),
         Question(R.string.question_africa, false),
         Question(R.string.question_americas, true),
-        Question(R.string.question_asia, true))
+        Question(R.string.question_asia, true)
+    )
 
     private var currentIndex = 0
 
@@ -30,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
+        prevButton = findViewById(R.id.prev_button)
         questionTextView = findViewById(R.id.question_text_view)
 
         trueButton.setOnClickListener {
@@ -41,6 +45,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         nextButton.setOnClickListener {
+            currentIndex = (currentIndex + 1) % questionBank.size
+            updateQuestion()
+        }
+
+        prevButton.setOnClickListener {
+            if (currentIndex == 0) {
+                currentIndex = questionBank.size - 1
+            } else {
+                currentIndex--
+            }
+            updateQuestion()
+        }
+
+        questionTextView.setOnClickListener {
             currentIndex = (currentIndex + 1) % questionBank.size
             updateQuestion()
         }
