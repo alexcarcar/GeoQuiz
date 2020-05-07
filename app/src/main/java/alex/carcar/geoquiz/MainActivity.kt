@@ -29,6 +29,9 @@ class MainActivity : AppCompatActivity() {
     )
 
     private var currentIndex = 0
+    private var questionsAnswered = 0
+    private val totalQuestions = questionBank.size
+    private var totalCorrect = 0
 
     // --- Nonexistent State
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -126,23 +129,30 @@ class MainActivity : AppCompatActivity() {
             trueButton.isEnabled = true
             falseButton.isEnabled = true
         }
+        if (totalQuestions == questionsAnswered) {
+            val score: Double = totalCorrect.toDouble() / totalQuestions.toDouble() * 100.0
+            Toast.makeText(this, "Your score is $score%", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
-        val correctAnswer = questionBank[currentIndex].answer
+        val q = questionBank[currentIndex]
+        val correctAnswer = q.answer
         val messageResId: Int?
-        questionBank[currentIndex].answered = true
-        questionBank[currentIndex].userAnswer = userAnswer
-        if (userAnswer == correctAnswer) {
-            messageResId = R.string.correct_toast
-            questionBank[currentIndex].points = 1
-        } else {
-            messageResId = R.string.incorrect_toast
-            questionBank[currentIndex].points = 0
+        if (!q.answered) {
+            questionsAnswered++
+            q.answered = true
+            q.userAnswer = userAnswer
+            if (userAnswer == correctAnswer) {
+                totalCorrect++
+                messageResId = R.string.correct_toast
+                q.points = 1
+            } else {
+                messageResId = R.string.incorrect_toast
+                q.points = 0
+            }
+            Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
         }
-        Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
-        trueButton.isEnabled = false
-        falseButton.isEnabled = false
         updateQuestion()
     }
 
