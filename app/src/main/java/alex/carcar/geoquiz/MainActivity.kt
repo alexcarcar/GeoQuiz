@@ -1,5 +1,6 @@
 package alex.carcar.geoquiz
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -99,20 +100,50 @@ class MainActivity : AppCompatActivity() {
     }
 
     // --- Resumed State
-
     private fun updateQuestion() {
         val questionTextResId = questionBank[currentIndex].textResId
+        val q:Question = questionBank[currentIndex]
+        trueButton.setBackgroundColor(Color.TRANSPARENT)
+        falseButton.setBackgroundColor(Color.TRANSPARENT)
         questionTextView.setText(questionTextResId)
+        if (q.answered) {
+            trueButton.isEnabled = false
+            falseButton.isEnabled = false
+            if (q.points == 1) { // answered the answer correctly
+                if (q.userAnswer!!) {
+                    trueButton.setBackgroundColor(Color.GREEN)
+                } else {
+                    falseButton.setBackgroundColor(Color.GREEN)
+                }
+            } else {
+                if (q.userAnswer!!) {
+                    trueButton.setBackgroundColor(Color.RED)
+                } else {
+                    falseButton.setBackgroundColor(Color.RED)
+                }
+            }
+        } else {
+            trueButton.isEnabled = true
+            falseButton.isEnabled = true
+        }
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
         val correctAnswer = questionBank[currentIndex].answer
-        val messageResId = if (userAnswer == correctAnswer) {
-            R.string.correct_toast
+        val messageResId: Int?
+        questionBank[currentIndex].answered = true
+        questionBank[currentIndex].userAnswer = userAnswer
+        if (userAnswer == correctAnswer) {
+            messageResId = R.string.correct_toast
+            questionBank[currentIndex].points = 1
         } else {
-            R.string.incorrect_toast
+            messageResId = R.string.incorrect_toast
+            questionBank[currentIndex].points = 0
         }
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
+        trueButton.isEnabled = false
+        falseButton.isEnabled = false
+        updateQuestion()
     }
 
 }
