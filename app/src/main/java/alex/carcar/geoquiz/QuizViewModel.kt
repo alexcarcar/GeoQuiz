@@ -3,7 +3,7 @@ package alex.carcar.geoquiz
 import androidx.lifecycle.ViewModel
 
 class QuizViewModel : ViewModel() {
-    private var currentIndex = 0
+    var currentIndex = 0
     private val questionBank = listOf(
         Question(R.string.question_australia, true),
         Question(R.string.question_oceans, true),
