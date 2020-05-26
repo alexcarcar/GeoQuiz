@@ -16,7 +16,9 @@ import androidx.lifecycle.ViewModelProviders
 
 private const val TAG = "MainActivity"
 private const val KEY_INDEX = "index"
+private const val NUMBER_OF_CHEATS_INDEX = "cheatsIndex"
 private const val REQUEST_CODE_CHEAT = 0
+private const val MAX_CHEATS = 3
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prevButton: ImageButton
     private lateinit var cheatButton: Button
     private lateinit var questionTextView: TextView
+    private lateinit var cheatsLeft: TextView
 
     private val quizViewModel: QuizViewModel by lazy {
         ViewModelProviders.of(this).get(QuizViewModel::class.java)
@@ -38,6 +41,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val currentIndex = savedInstanceState?.getInt(KEY_INDEX, 0) ?: 0
+        val numberOfCheats = savedInstanceState?.getInt(NUMBER_OF_CHEATS_INDEX, 0) ?: 0
         quizViewModel.currentIndex = currentIndex
 
         trueButton = findViewById(R.id.true_button)
@@ -46,6 +50,8 @@ class MainActivity : AppCompatActivity() {
         prevButton = findViewById(R.id.prev_button)
         cheatButton = findViewById(R.id.cheat_button)
         questionTextView = findViewById(R.id.question_text_view)
+        cheatsLeft = findViewById(R.id.cheatsLeft)
+        cheatsLeft.text = getString(R.string.cheats_left, MAX_CHEATS - numberOfCheats)
 
         trueButton.setOnClickListener {
             checkAnswer(true)
@@ -70,7 +76,8 @@ class MainActivity : AppCompatActivity() {
             val answerIsTrue = quizViewModel.currentQuestionAnswer
             val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val options = ActivityOptions.makeClipRevealAnimation(view, 0, 0, view.width, view.height)
+                val options =
+                    ActivityOptions.makeClipRevealAnimation(view, 0, 0, view.width, view.height)
                 startActivityForResult(intent, REQUEST_CODE_CHEAT, options.toBundle())
             } else {
                 startActivityForResult(intent, REQUEST_CODE_CHEAT)
@@ -93,6 +100,7 @@ class MainActivity : AppCompatActivity() {
 
         if (requestCode == REQUEST_CODE_CHEAT) {
             quizViewModel.isCheater = data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+            quizViewModel.numberOfCheats++
         }
     }
 
@@ -113,6 +121,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        updateQuestion()
         Log.d(TAG, "onResume() called")
     }
 
@@ -125,11 +134,17 @@ class MainActivity : AppCompatActivity() {
         super.onSaveInstanceState(savedInstanceState)
         Log.i(TAG, "onSaveInstanceState")
         savedInstanceState.putInt(KEY_INDEX, quizViewModel.currentIndex)
+        savedInstanceState.putInt(NUMBER_OF_CHEATS_INDEX, quizViewModel.numberOfCheats)
     }
 
     private fun updateQuestion() {
         val questionTextResId = quizViewModel.currentQuestionText
         questionTextView.setText(questionTextResId)
+        var numberOfCheats: Int = MAX_CHEATS - quizViewModel.numberOfCheats
+        cheatsLeft.text = getString(R.string.cheats_left, numberOfCheats)
+        if (numberOfCheats == 0) {
+            cheatButton.isEnabled = false
+        }
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
