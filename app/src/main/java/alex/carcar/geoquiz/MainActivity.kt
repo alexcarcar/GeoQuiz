@@ -1,5 +1,6 @@
 package alex.carcar.geoquiz
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ActivityOptions
@@ -70,7 +71,8 @@ class MainActivity : AppCompatActivity() {
             val answerIsTrue = quizViewModel.currentQuestionAnswer
             val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val options = ActivityOptions.makeClipRevealAnimation(view, 0, 0, view.width, view.height)
+                val options =
+                    ActivityOptions.makeClipRevealAnimation(view, 0, 0, view.width, view.height)
                 startActivityForResult(intent, REQUEST_CODE_CHEAT, options.toBundle())
             } else {
                 startActivityForResult(intent, REQUEST_CODE_CHEAT)
@@ -130,6 +132,14 @@ class MainActivity : AppCompatActivity() {
     private fun updateQuestion() {
         val questionTextResId = quizViewModel.currentQuestionText
         questionTextView.setText(questionTextResId)
+
+        questionTextView.rotation = -45F
+        questionTextView.textSize = 65F
+        ObjectAnimator.ofFloat(questionTextView, "rotation", -45F, 0F).setDuration(3000).start()
+        ObjectAnimator.ofFloat(questionTextView, "alpha", 0F, 1F).setDuration(3000).start()
+        ObjectAnimator.ofFloat(questionTextView, "scaleX", 0F, 1F).setDuration(3000).start()
+        ObjectAnimator.ofFloat(questionTextView, "scaleY", 0F, 1F).setDuration(3000).start()
+
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
